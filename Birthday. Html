@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday My Love</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --burgundy: #2d0a10;
+            --rose: #b76e79;
+            --rose-light: #e8b4b8;
+            --gold: #d4af37;
+            --cream: #fff8f0;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: var(--burgundy);
+            color: var(--cream);
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--rose);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--burgundy);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10000;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--rose-light);
+            letter-spacing: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        .preloader-heart {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        .preloader-heart::before,
+        .preloader-heart::after {
+            content: '';
+            width: 26px;
+            height: 40px;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            background: var(--rose);
+            border-radius: 25px 25px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .preloader-heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        /* Canvas Background */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 30px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: var(--cream);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--cream);
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Sections */
+        section {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 50px;
+        }
+
+        /* Hero Section */
+        .hero {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--rose-light);
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s ease forwards 0.5s;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 7rem);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeUp 1.2s ease forwards 0.8s;
+        }
+
+        .hero-title span {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .hero-date {
+            font-size: 1.1rem;
+            letter-spacing: 4px;
+            color: var(--rose);
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 1.2s;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 2s, bounce 2s infinite 3s;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--rose), transparent);
+        }
+
+        /* Quotes Section */
+        .quotes-section {
+            background: linear-gradient(to bottom, transparent, rgba(45, 10, 16, 0.8));
+        }
+
+        .quotes-container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-label {
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+        }
+
+        .quote-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 50px;
+            margin-bottom: 40px;
+            border-radius: 20px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px) rotateX(10deg);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-style: preserve-3d;
+        }
+
+        .quote-card.visible {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+
+        .quote-card::before {
+            content: '"';
+            font-family: 'Playfair Display', serif;
+            font-size: 6rem;
+            color: var(--rose);
+            opacity: 0.3;
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            line-height: 1;
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--rose-light);
+        }
+
+        /* Love Letter Section */
+        .letter-section {
+            background: var(--burgundy);
+        }
+
+        .letter-container {
+            max-width: 700px;
+            perspective: 1000px;
+        }
+
+        .letter-envelope {
+            background: linear-gradient(135deg, #3d1219, #2d0a10);
+            padding: 60px;
+            border-radius: 15px;
+            border: 1px solid rgba(183, 110, 121, 0.3);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .letter-envelope:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .letter-seal {
+            width: 60px;
+            height: 60px;
+            background: var(--gold);
+            border-radius: 50%;
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .letter-content {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: var(--rose-light);
+        }
+
+        .letter-content p {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .letter-content.visible p {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .letter-content.visible p:nth-child(1) { transition-delay: 0.1s; }
+        .letter-content.visible p:nth-child(2) { transition-delay: 0.3s; }
+        .letter-content.visible p:nth-child(3) { transition-delay: 0.5s; }
+        .letter-content.visible p:nth-child(4) { transition-delay: 0.7s; }
+
+        /* Reasons Section */
+        .reasons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .reason-card {
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .reason-card.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .reason-card:hover {
+            border-color: var(--rose);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .reason-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        .reason-title {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .reason-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--rose-light);
+        }
+
+        /* Final Section */
+        .final-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-content {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .final-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--gold), var(--rose-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .final-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            color: var(--rose-light);
+        }
+
+        .btn-celebrate {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            padding: 20px 50px;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .btn-celebrate:hover {
+            background: var(--gold);
+            color: var(--burgundy);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Fireworks Canvas */
+        #fireworks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav { padding: 20px; }
+            .nav-links { display: none; }
+            section { padding: 80px 20px; }
+            .quote-card { padding: 30px; }
+            .letter-envelope { padding: 40px 30px; }
+        }
+
+        /* Text Scramble Effect Container */
+        .scramble-text {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-heart"></div>
+        <div class="preloader-text">Loading Something Special...</div>
+    </div>
+
+    <!-- Background Canvas -->
+    <canvas id="canvas-bg"></canvas>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">For Her</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#quotes">Quotes</a></li>
+            <li><a href="#letter">Letter</a></li>
+            <li><a href="#reasons">Reasons</a></li>
+            <li><a href="#wish">Wish</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-subtitle">A Celebration of You</div>
+        <h1 class="hero-title">Happy Birthday<br><span>[Her Name]</span></h1>
+        <div class="hero-date">The Day My World Became Brighter</div>
+        <div class="scroll-indicator">
+            <span style="font-size: 0.8rem; letter-spacing: 2px;">Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- Quotes Section -->
+    <section class="quotes-section" id="quotes">
+        <div class="quotes-container">
+            <div class="section-header">
+                <span class="section-label">Timeless Words</span>
+                <h2 class="section-title">Quotes That Remind Me of You</h2>
+            </div>
+            
+            <div class="quote-card">
+                <p class="quote-text">In all the world, there is no heart for me like yours. In all the world, there is no love for you like mine.</p>
+                <div class="quote-author">— Maya Angelou</div>
+            </div>
+
+            <div class="quote-card">
+                <p class="quote-text">I saw that you were perfect, and so I loved you. Then I saw that you were not perfect and I loved you even more.</p>
+                <div class="quote-author">— Angelita Lim</div>
+            </div>
+
+            <div class="quote-card">
+                <p class="quote-text">You are my sun, my moon, and all my stars. Every day with you is my favorite day.</p>
+                <div class="quote-author">— E.E. Cummings</div>
+            </div>
+
+            <div class="quote-card">
+                <p class="quote-text">I would rather spend one lifetime with you, than face all the ages of this world alone.</p>
+                <div class="quote-author">— J.R.R. Tolkien</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Love Letter Section -->
+    <section class="letter-section" id="letter">
+        <div class="letter-container">
+            <div class="section-header">
+                <span class="section-label">From My Heart</span>
+                <h2 class="section-title">A Letter To You</h2>
+            </div>
+            <div class="letter-envelope floating">
+                <div class="letter-seal">❦</div>
+                <div class="letter-content" id="letter-content">
+                    <p>My Dearest [Her Name],</p>
+                    <p>On this day, I find myself overwhelmed with gratitude. Not just for your birth, but for every moment since that has led you to me. You are the poetry I never knew how to write.</p>
+                    <p>In your eyes, I find a home. In your laughter, I find my peace. You have this incredible way of making my heart feel full simply by existing.</p>
+                    <p>Today, I celebrate you—not just as my girlfriend, but as the extraordinary soul you are. Happy Birthday, my love. May this year bring you as much joy as you have brought me.</p>
+                    <p style="text-align: right; margin-top: 30px;">Forever Yours,<br>— [Your Name]</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reasons Section -->
+    <section class="reasons-section" id="reasons">
+        <div style="max-width: 1200px; width: 100%;">
+            <div class="section-header">
+                <span class="section-label">Why You Are Special</span>
+                <h2 class="section-title">Reasons I Love You</h2>
+            </div>
+            <div class="reasons-grid">
+                <div class="reason-card">
+                    <div class="reason-number">01</div>
+                    <h3 class="reason-title">Your Smile</h3>
+                    <p class="reason-text">It has the power to light up my darkest days and make everything feel right in the world.</p>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">02</div>
+                    <h3 class="reason-title">Your Kindness</h3>
+                    <p class="reason-text">The way you care for others, even strangers, reminds me daily of the beauty in this world.</p>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">03</div>
+                    <h3 class="reason-title">Your Strength</h3>
+                    <p class="reason-text">You face every challenge with grace and courage, inspiring me to be a better person.</p>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">04</div>
+                    <h3 class="reason-title">Your Laugh</h3>
+                    <p class="reason-text">It is my favorite sound in the entire universe—genuine, infectious, and purely magical.</p>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">05</div>
+                    <h3 class="reason-title">Your Mind</h3>
+                    <p class="reason-text">The way you think, dream, and see the world fascinates me endlessly.</p>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">06</div>
+                    <h3 class="reason-title">Your Love</h3>
+                    <p class="reason-text">It is the greatest gift I have ever received, and I promise to cherish it forever.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Wish Section -->
+    <section class="final-section" id="wish">
+        <canvas id="fireworks"></canvas>
+        <div class="final-content">
+            <h2 class="final-title">Make a Wish</h2>
+            <p class="final-text">
+                On this special day, I hope all your dreams take flight.<br>
+                You deserve every happiness this world can offer.<br>
+                I love you to the moon and back, today and always.
+            </p>
+            <button class="btn-celebrate" id="celebrate-btn">Celebrate Us</button>
+        </div>
+    </section>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 2000);
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const follower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                follower.style.left = e.clientX + 'px';
+                follower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        document.addEventListener('mousedown', () => {
+            cursor.style.transform = 'scale(0.8)';
+        });
+
+        document.addEventListener('mouseup', () => {
+            cursor.style.transform = 'scale(1)';
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.quote-card, .reason-card, .letter-content').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Staggered animation for reason cards
+        const reasonObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 150);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reason-card').forEach(card => {
+            reasonObserver.observe(card);
+        });
+
+        // Floating Hearts Canvas
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + Math.random() * 100;
+                this.size = Math.random() * 3 + 1;
+                this.speedY = Math.random() * 1 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.color = Math.random() > 0.5 ? '#b76e79' : '#d4af37';
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 2 - 1;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+                
+                if (this.y < -10) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                
+                // Draw heart shape
+                const s = this.size;
+                ctx.beginPath();
+                ctx.moveTo(0, -s);
+                ctx.bezierCurveTo(s, -s, s, s/2, 0, s);
+                ctx.bezierCurveTo(-s, s/2, -s, -s, 0, -s);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        // Create particles
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Fireworks System
+        const fwCanvas = document.getElementById('fireworks');
+        const fwCtx = fwCanvas.getContext('2d');
+        let fwWidth, fwHeight;
+        let fireworks = [];
+        let particles2 = [];
+
+        function resizeFw() {
+            fwWidth = fwCanvas.width = window.innerWidth;
+            fwHeight = fwCanvas.height = window.innerHeight;
+        }
+        resizeFw();
+        window.addEventListener('resize', resizeFw);
+
+        class Firework {
+            constructor(x, targetY) {
+                this.x = x;
+                this.y = fwHeight;
+                this.targetY = targetY;
+                this.speed = 8;
+                this.angle = -Math.PI / 2;
+                this.vx = Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
+                this.hue = Math.random() * 60 + 330; // Pink to gold range
+                this.brightness = Math.random() * 30 + 50;
+                this.alpha = 1;
+                this.exploded = false;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1; // gravity
+
+                if (this.vy >= 0 || this.y <= this.targetY) {
+                    this.explode();
+                    return false;
+                }
+                return true;
+            }
+
+            draw() {
+                fwCtx.beginPath();
+                fwCtx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                fwCtx.fillStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                fwCtx.fill();
+            }
+
+            explode() {
+                for (let i = 0; i < 50; i++) {
+                    particles2.push(new Particle2(this.x, this.y, this.hue));
+                }
+            }
+        }
+
+        class Particle2 {
+            constructor(x, y, hue) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.hue = hue + Math.random() * 30 - 15;
+                this.brightness = Math.random() * 30 + 50;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.015 + 0.01;
+                this.gravity = 0.05;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.vx *= 0.98;
+                this.alpha -= this.decay;
+                return this.alpha > 0;
+            }
+
+            draw() {
+                fwCtx.beginPath();
+                fwCtx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                fwCtx.fillStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+                fwCtx.fill();
+            }
+        }
+
+        function animateFw() {
+            fwCtx.fillStyle = 'rgba(45, 10, 16, 0.1)';
+            fwCtx.fillRect(0, 0, fwWidth, fwHeight);
+
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                if (!fireworks[i].update()) {
+                    fireworks.splice(i, 1);
+                } else {
+                    fireworks[i].draw();
+                }
+            }
+
+            for (let i = particles2.length - 1; i >= 0; i--) {
+                if (!particles2[i].update()) {
+                    particles2.splice(i, 1);
+                } else {
+                    particles2[i].draw();
+                }
+            }
+
+            requestAnimationFrame(animateFw);
+        }
+        animateFw();
+
+        // Celebrate Button
+        document.getElementById('celebrate-btn').addEventListener('click', function() {
+            this.textContent = 'I Love You!';
+            this.style.background = 'var(--gold)';
+            this.style.color = 'var(--burgundy)';
+            
+            // Launch fireworks
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    fireworks.push(new Firework(
+                        Math.random() * fwWidth * 0.8 + fwWidth * 0.1,
+                        Math.random() * fwHeight * 0.4 + 50
+                    ));
+                }, i * 300);
+            }
+
+            // Create burst effect
+            const burst = document.createElement('div');
+            burst.style.position = 'fixed';
+            burst.style.top = '50%';
+            burst.style.left = '50%';
+            burst.style.transform = 'translate(-50%, -50%)';
+            burst.style.width = '0px';
+            burst.style.height = '0px';
+            burst.style.borderRadius = '50%';
+            burst.style.background = 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)';
+            burst.style.zIndex = '5';
+            burst.style.transition = 'all 1s ease-out';
+            document.body.appendChild(burst);
+
+            setTimeout(() => {
+                burst.style.width = '1000px';
+                burst.style.height = '1000px';
+                burst.style.opacity = '0';
+            }, 50);
+
+            setTimeout(() => {
+                burst.remove();
+            }, 1000);
+        });
+
+        // Text Scramble Effect for Hero Title
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span style="color: var(--rose)">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        // Apply scramble to subtitle after load
+        window.addEventListener('load', () => {
+            const el = document.querySelector('.hero-subtitle');
+            const fx = new TextScramble(el);
+            setTimeout(() => {
+                fx.setText('A Celebration of You');
+            }, 2500);
+        });
+
+        // Parallax Effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-title');
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translateY(${speed}px)`;
+        });
+    </script>
+</body>
+</html>
